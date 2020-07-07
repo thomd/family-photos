@@ -8,12 +8,14 @@
   transer via AirDrop. Then copy Live Photos via
 
     cd ~/Library/Caches/Cleanup At Startup
-    find . -type f -iname "*.mov" -exec cp {} ~/Pictures/todo/ \;
-    find . -type f -iname "*.jpg" -exec cp {} ~/Pictures/todo/ \;
+    while read file; do echo ${file##*.}; done < <(find . -type f) | sort | uniq -c
+    find . -type f -iname "*.jpg" -exec mv {} ~/Pictures/todo/ \;
+    find . -type f -iname "*.mov" -exec mv {} ~/Movies/todo/ \;
 
 2. Get overview of file types
 
-    while read file; do echo ${file##*.}; done < <(find . -type f) | sort | uniq -c
+    cd ~/Pictures/todo
+    while read file; do echo ${file##*.}; done < <(find . -type f) | tqdm --total `find . -type f | wc -l` | sort | uniq -c
 
 3. Move images and movies into **todo** folders
 
