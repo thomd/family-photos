@@ -10,7 +10,7 @@
     cd ~/Library/Caches/Cleanup At Startup
     while read file; do echo ${file##*.}; done < <(find . -type f) | sort | uniq -c
     find . -type f -iname "*.jpg" -exec mv {} ~/Pictures/todo/ \;
-    find . -type f -iname "*.mov" -exec mv {} ~/Movies/todo/ \;
+    find . -type f \( -iname "*.mov" -or -iname "*.mp4" -or -iname "*.m4v" -or -iname "*.avi" \) -exec mv {} ~/Movies/todo/ \;
 
 2. Get overview of file types
 
@@ -88,7 +88,7 @@
 
     cd todo/
     count=0; while IFS= read -r -d '' F; do
-      D=`exiftool "$F" | grep "Create Date" | head -n 1 | awk '{print $4}' | tr ':' '-'`;
+      D=`exiftool "$F" | grep "^Create Date" | head -n 1 | awk '{print $4}' | tr ':' '-'`;
       DD=`echo "$D" | cut -c 1-4`;
       count=$(($count+1));
       echo "[$count] $DD $D $F";
@@ -127,18 +127,25 @@ First check for possible movies files
 
     while read file; do echo ${file##*.}; done < <(find . -type f) | sort | uniq -c
 
-## move movies from `~/Pictures` to `~/Movies`
+## sort movies into todo/date folders
 
-    while read file; do
-      D=$(dirname $file);
-      F=$(basename $file);
-      mkdir -p "/Users/thomas/Movies/Familie/2019/$D";
-      mv "$file" $_;
-    done < <(find . -type f -iname "*.mp4")
+  sort movies within `todo/*` into date folders `todo/2020/*`
+
+    cd todo/
+    count=0; while IFS= read -r -d '' F; do
+      D=`exiftool "$F" | grep "^Date/Time Original" | head -n 1 | awk '{print $4}' | tr ':' '-'`;
+      DD=`echo "$D" | cut -c 1-4`;
+      count=$(($count+1));
+      mkdir -p "$DD/$D";
+      FF=`basename "$F" | tr -s ' ' '-'`;
+      echo "[$count] $F $DD/$D/$FF";
+      mv "$F" "$DD/$D/$FF";
+    done < <(find . -maxdepth 1 -type f -iname '*.mov' -or -iname '*.mp4' -or -iname '*.m4v' -or -iname '*.avi' -print0)
 
 ## backup family movies
 
     rsync -avP --stats /Users/thomas/Movies/Familie /Volumes/Backup2/filme
+    rsync -avP --stats /Users/thomas/Movies/Familie /Volumes/Backup/filme
 
 
 
