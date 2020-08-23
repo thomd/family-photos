@@ -145,6 +145,8 @@ First check for possible movies files
 ## backup family movies
 
     rsync -avP --stats /Users/thomas/Movies/Familie /Volumes/Backup2/filme
+    rsync -avP --stats /Users/thomas/Movies/Thomas /Volumes/Backup2/filme
+    rsync -avP --stats /Users/thomas/Movies/DVD /Volumes/Backup2/filme
     rsync -avP --stats /Users/thomas/Movies/Familie /Volumes/Backup/filme
 
 
