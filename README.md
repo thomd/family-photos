@@ -9,12 +9,12 @@
 
     cd ~/Library/Caches/Cleanup At Startup
     while read file; do echo ${file##*.}; done < <(find . -type f) | sort | uniq -c
-    find . -type f -iname "*.jpg" -exec mv {} ~/Pictures/todo/ \;
-    find . -type f \( -iname "*.mov" -or -iname "*.mp4" -or -iname "*.m4v" -or -iname "*.avi" \) -exec mv {} ~/Movies/todo/ \;
+    find . -type f -iname "*.jpg" -exec mv {} ~/Pictures/todo-new/ \;
+    find . -type f \( -iname "*.mov" -or -iname "*.mp4" -or -iname "*.m4v" -or -iname "*.avi" \) -exec mv {} ~/Movies/todo-new/ \;
 
 2. Get overview of file types
 
-    cd ~/Pictures/todo
+    cd ~/Pictures/todo-new
     while read file; do echo ${file##*.}; done < <(find . -type f) | tqdm --total `find . -type f | wc -l` | sort | uniq -c
 
 3. Move images and movies into **todo** folders
@@ -31,7 +31,33 @@
 
     tar -cvf todo.tar todo/
 
-4. Remove **duplicate** images and movies
+4. Do some file **cleanup**
+
+  Make all file lowercase
+
+    cd todo/
+    find . -iname "*.jpg" | while read f; do slugify -n "$f"; done
+    find . -iname "*.jpg" | while read f; do slugify -ad "$f"; done
+
+  Set file permissions
+
+    cd todo/
+    chmod 644 *
+
+  Remove trailing ` 2` index from filename
+
+    cd todo/
+    find . -type f -name "* *"
+    while read f; do mv "${f}" "${f/ 2/}"; done < <(find . -type f -iname "* 2.JPG")
+
+5. Check if all photos have an EXIF date
+
+  List images with missing exif-date:
+
+    cd todo/
+    while read f; do exiftool $f | grep -q "Create Date" || echo $f; done < <(find . -type f)
+
+6. Remove **duplicate** images and movies
 
   Get distribution of years:
 
@@ -49,32 +75,6 @@
     fdupes -rdN todo/ Familie/2020/                                                                    # preserve the first file and delete rest without prompting
     while read f; do echo $f | grep ^todo | xargs rm -v; done < <(fdupes -Ar todo/ Familie/2020/)      # delete files from todo folder
 
-5. Do some file **cleanup**
-
-  Set file permissions
-
-    cd todo/
-    chmod 644 *
-
-  Remove trailing ` 2` index from filename
-
-    cd todo/
-    find . -type f -name "* *"
-    while read f; do mv "${f}" "${f/ 2/}"; done < <(find . -type f -iname "* 2.JPG")
-
-  Make all file lowercase
-
-    cd todo/
-    slugify -n *
-    slugify -iad *.jpg
-
-6. Check if all photos have an EXIF date
-
-  List images with missing exif-date:
-
-    cd todo/
-    while read f; do exiftool $f | grep -q "Create Date" || echo $f; done < <(find . -type f)
-
 7. Manually delete **bad images** which are not worth to archive via images viewer, e.g. **ApolloOne**.
 
     cd todo/
@@ -84,7 +84,7 @@
 
 ## sort photos into date folders
 
-  sort images within `todo/*` into date folders `todo/2020/*`
+  sort images within `todo/*` into date folders `todo/2020/*`, `todo/2019/*`, ...
 
     cd todo/
     count=0; while IFS= read -r -d '' F; do
