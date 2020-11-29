@@ -3,6 +3,8 @@
 
 1. Copy all new photos & movies from all devices into a **download** folder. 
 
+  macOS Catalina:
+
   Use AirDrop from Fotos App on iPhone to keep Live-Images (converted into MOV files)
   If Live-Images are not in the download folder, then select them on the iPhone under "Alben > Live Photos" and
   transer via AirDrop. Then copy Live Photos via
@@ -12,9 +14,19 @@
     find . -type f -iname "*.jpg" -exec mv {} ~/Pictures/todo-new/ \;
     find . -type f \( -iname "*.mov" -or -iname "*.mp4" -or -iname "*.m4v" -or -iname "*.avi" \) -exec mv {} ~/Movies/todo-new/ \;
 
+  macOS Mojave:
+
+  Connect iPhone via USB with iMac and import into Fotos-App (using an "import" Mediathek)
+  Then export original Photos
+
+
 2. Get overview of file types
 
     cd ~/Pictures/todo-new
+    while read file; do echo ${file##*.}; done < <(find . -type f) | sort | uniq -c
+
+  with progress bar:
+
     while read file; do echo ${file##*.}; done < <(find . -type f) | tqdm --total `find . -type f | wc -l` | sort | uniq -c
 
 3. Move images and movies into **todo** folders
@@ -31,12 +43,16 @@
 
     tar -cvf todo.tar todo/
 
+  with progress bar:
+
+    tar -cvf todo.tar todo/ |& tqdm --total `find todo/ -type f | wc -l`
+
 4. Do some file **cleanup**
 
   Make all file lowercase
 
     cd todo/
-    find . -iname "*.jpg" | while read f; do slugify -n "$f"; done
+    find . -iname "*.jpg" | while read f; do slugify -n "$f"; done            # dry-run
     find . -iname "*.jpg" | while read f; do slugify -ad "$f"; done
 
   Set file permissions
@@ -49,6 +65,19 @@
     cd todo/
     find . -type f -name "* *"
     while read f; do mv "${f}" "${f/ 2/}"; done < <(find . -type f -iname "* 2.JPG")
+
+  Remove parentheses like `(1)` from filename
+
+    cd todo/
+    find . -type f -iname "*(*"
+    while read f; do mv "${f}" "${f//\(/}"; done < <(find . -type f -iname "*(*")
+    find . -type f -iname "*)*"
+    while read f; do mv "${f}" "${f//\)/}"; done < <(find . -type f -iname "*)*")
+
+  Remove Apple quarantine:
+  (when downloading files on a Mac, Apple adds the x-attribute: com.apple.quarantine)
+
+    find . -type f | xargs xattr -d com.apple.quarantine
 
 5. Check if all photos have an EXIF date
 
