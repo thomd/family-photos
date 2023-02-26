@@ -1,7 +1,7 @@
 
 # PREPARATION
 
-1. Copy all new photos & movies from all devices into a **download** folder. 
+### Copy all new photos & movies from all devices into a **download** folder. 
 
   macOS Catalina:
 
@@ -20,7 +20,7 @@
   Then export original Photos
 
 
-2. Get overview of file types
+### Get overview of file types
 
     cd ~/Pictures/todo-new
     while read file; do echo ${file##*.}; done < <(find . -type f) | sort | uniq -c
@@ -29,7 +29,7 @@
 
     while read file; do echo ${file##*.}; done < <(find . -type f) | tqdm --total `find . -type f | wc -l` | sort | uniq -c
 
-3. Move images and movies into **todo** folders
+### Move images and movies into **todo** folders
 
   Images:
 
@@ -39,7 +39,7 @@
 
     find . -type f -iname "*.mov" -exec mv {} ~/Movies/todo/ \;
 
-3. Make a tar backup before doing any file changes
+### Make a tar backup before doing any file changes
 
     tar -cvf todo.tar todo/
 
@@ -47,7 +47,7 @@
 
     tar -cvf todo.tar todo/ |& tqdm --total `find todo/ -type f | wc -l`
 
-4. Do some file **cleanup**
+### Do some file **cleanup**
 
   Make all file lowercase
 
@@ -79,14 +79,14 @@
 
     find . -type f | xargs xattr -d com.apple.quarantine
 
-5. Check if all photos have an EXIF date
+### Check if all photos have an EXIF date
 
   List images with missing exif-date:
 
     cd todo/
     while read f; do exiftool $f | grep -q "Create Date" || echo $f; done < <(find . -type f)
 
-6. Remove **duplicate** images and movies
+### Remove **duplicate** images and movies
 
   Get distribution of years:
 
@@ -104,7 +104,7 @@
     fdupes -rdN todo/ Familie/2020/                                                                    # preserve the first file and delete rest without prompting
     while read f; do echo $f | grep ^todo | xargs rm -v; done < <(fdupes -Ar todo/ Familie/2020/)      # delete files from todo folder
 
-7. Manually delete **bad images** which are not worth to archive via images viewer, e.g. **ApolloOne**.
+### Manually delete **bad images** which are not worth to archive via images viewer, e.g. **ApolloOne**.
 
     cd todo/
     open -a ApolloOne .
