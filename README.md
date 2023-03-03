@@ -1,26 +1,31 @@
+# Familiy Photos
 
-# PREPARATION
+Mastering the endless flood of familiy photos with **bash**, **python** and **data-science**.
 
-### Copy all new photos & movies from all devices into a **download** folder. 
+## Preparation
 
-  macOS Catalina:
+### Copy new photos & movies from iPhone into a local folder
 
-  Use AirDrop from Fotos App on iPhone to keep Live-Images (converted into MOV files)
-  If Live-Images are not in the download folder, then select them on the iPhone under "Alben > Live Photos" and
-  transer via AirDrop. Then copy Live Photos via
+#### Method 1
+
+Open [icloud.com](https://www.icloud.com), select images and click download icon. This keeps live-images as MOV files.
+
+#### Method 2
+
+Use AirDrop from Fotos App on iPhone to keep Live-Images (converted into MOV files). 
+If Live-Images are not in the download folder, then select them on the iPhone under "Alben > Live Photos" and transer via AirDrop. 
+Then copy Live Photos via
 
     cd ~/Library/Caches/Cleanup At Startup
     while read file; do echo ${file##*.}; done < <(find . -type f) | sort | uniq -c
     find . -type f -iname "*.jpg" -exec mv {} ~/Pictures/todo-new/ \;
     find . -type f \( -iname "*.mov" -or -iname "*.mp4" -or -iname "*.m4v" -or -iname "*.avi" \) -exec mv {} ~/Movies/todo-new/ \;
 
-  macOS Mojave:
+#### Method 3
 
-  Connect iPhone via USB with iMac and import into Fotos-App (using an "import" Mediathek)
-  Then export original Photos
+Connect iPhone via USB with iMac and import into Fotos-App (using an "import" Mediathek), then export original Photos
 
-
-### Get overview of file types
+### Overview of file types
 
     cd ~/Pictures/todo-new
     while read file; do echo ${file##*.}; done < <(find . -type f) | sort | uniq -c
@@ -47,7 +52,7 @@
 
     tar -cvf todo.tar todo/ |& tqdm --total `find todo/ -type f | wc -l`
 
-### Do some file **cleanup**
+### Do some file cleanup
 
   Make all file lowercase
 
@@ -86,7 +91,7 @@
     cd todo/
     while read f; do exiftool $f | grep -q "Create Date" || echo $f; done < <(find . -type f)
 
-### Remove **duplicate** images and movies
+### Remove duplicate images and movies
 
   Get distribution of years:
 
@@ -104,14 +109,14 @@
     fdupes -rdN todo/ Familie/2020/                                                                    # preserve the first file and delete rest without prompting
     while read f; do echo $f | grep ^todo | xargs rm -v; done < <(fdupes -Ar todo/ Familie/2020/)      # delete files from todo folder
 
-### Manually delete **bad images** which are not worth to archive via images viewer, e.g. **ApolloOne**.
+### Manually delete bad images which are not worth to archive via images viewer, e.g. ApolloOne
 
     cd todo/
     open -a ApolloOne .
 
-# IMAGES
+# Image Management
 
-## sort photos into date folders
+## Distribute photos into date folders
 
   sort images within `todo/*` into date folders `todo/2020/*`, `todo/2019/*`, ...
 
@@ -131,7 +136,7 @@
     cd Pictures/
     ./distribute-images.sh todo
 
-## import family photos in `Photos` app
+## import family photos in Photos app
 
 1. Open `Photos`: Hold down `Option` Key and click `Photos`, then select Library.
 
@@ -145,18 +150,16 @@
 
 ## backup family photos
 
-    rsync -avP --stats /Users/thomas/Pictures/Familie /Volumes/Backup2/fotos
+    rsync -avP --stats /Users/thomas/Pictures/Familie /Volumes/Backup/fotos
     rsync -avP --stats /Users/thomas/Pictures/Familie /Volumes/Backup/fotos
 
-
-
-# MOVIES
+# Movies Management
 
 First check for possible movies files
 
     while read file; do echo ${file##*.}; done < <(find . -type f) | sort | uniq -c
 
-## sort movies into todo/date folders
+## Sort movies into todo/date folders
 
   sort movies within `todo/*` into date folders `todo/2020/*`
 
@@ -171,13 +174,8 @@ First check for possible movies files
       mv "$F" "$DD/$D/$FF";
     done < <(find . -maxdepth 1 -type f -iname '*.mov' -or -iname '*.mp4' -or -iname '*.m4v' -or -iname '*.avi' -print0)
 
-## backup family movies
+## Backup family movies
 
-    rsync -avP --stats /Users/thomas/Movies/Familie /Volumes/Backup2/filme
-    rsync -avP --stats /Users/thomas/Movies/Thomas /Volumes/Backup2/filme
-    rsync -avP --stats /Users/thomas/Movies/DVD /Volumes/Backup2/filme
     rsync -avP --stats /Users/thomas/Movies/Familie /Volumes/Backup/filme
+    rsync -avP --stats /Users/thomas/Movies/Thomas /Volumes/Backup/filme
 
-
-
-# vim:nospell:tw=0:nowrap
