@@ -1,6 +1,6 @@
 # Familiy Photos
 
-Mastering the endless flood of familiy photos with **bash**, **python** and **data-science**.
+Mastering the endless flood of familiy photos with **bash**, **python** and a little **data-science**.
 
 ## Preparation
 
@@ -48,30 +48,34 @@ Connect iPhone via USB with iMac and import into Fotos-App (using an "import" Me
 
     tar -cvf todo.tar todo/
 
-  with progress bar:
+with progress bar:
 
     tar -cvf todo.tar todo/ |& tqdm --total `find todo/ -type f | wc -l`
 
 ### Do some file cleanup
 
-  Make all file lowercase
+Find files with anomal filenames
+
+    ./anomaly-filename-detection.py --path ~/Downloads/photos/
+
+Make all file lowercase
 
     cd todo/
     find . -iname "*.jpg" | while read f; do slugify -n "$f"; done            # dry-run
     find . -iname "*.jpg" | while read f; do slugify -ad "$f"; done
 
-  Set file permissions
+Set file permissions
 
     cd todo/
     chmod 644 *
 
-  Remove trailing ` 2` index from filename
+Remove trailing ` 2` index from filename
 
     cd todo/
     find . -type f -name "* *"
     while read f; do mv "${f}" "${f/ 2/}"; done < <(find . -type f -iname "* 2.JPG")
 
-  Remove parentheses like `(1)` from filename
+Remove parentheses like `(1)` from filename
 
     cd todo/
     find . -type f -iname "*(*"
@@ -79,8 +83,7 @@ Connect iPhone via USB with iMac and import into Fotos-App (using an "import" Me
     find . -type f -iname "*)*"
     while read f; do mv "${f}" "${f//\)/}"; done < <(find . -type f -iname "*)*")
 
-  Remove Apple quarantine:
-  (when downloading files on a Mac, Apple adds the x-attribute: com.apple.quarantine)
+Remove Apple quarantine (when downloading files on a Mac, Apple adds the `x-attribute: com.apple.quarantine`)
 
     find . -type f | xargs xattr -d com.apple.quarantine
 

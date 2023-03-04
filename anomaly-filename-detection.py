@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+
+import os
+import argparse
+import pathlib
+import numpy as np
+from sklearn.feature_extraction.text import CountVectorizer
+
+def main(args):
+    filenames = os.listdir(args['path'])
+    vectorizer = CountVectorizer(analyzer='char', lowercase=False, max_features=args['features'])
+    vectors = vectorizer.fit_transform(filenames).toarray()
+    mean_vector = np.mean(vectors, axis=0)
+    euclidean_distances = np.linalg.norm(vectors - mean_vector, axis=1)
+    anomaly_indices = np.where(euclidean_distances > np.mean(euclidean_distances) + args['z_score'] * np.std(euclidean_distances))[0]
+    for index in anomaly_indices:
+        print(filenames[index])
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Anomaly Filename Detection')
+    parser.add_argument('--path', default='./photos', metavar='PATH', type=pathlib.Path, help='path to image files')
+    parser.add_argument('--features', default=6, type=int, metavar='N', help='max features')
+    parser.add_argument('--z-score', default=4, type=int, metavar='N', help='z-score')
+    main(vars(parser.parse_args()))
