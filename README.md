@@ -1,6 +1,14 @@
 # Familiy Photos
 
-Mastering the endless flood of familiy photos with **bash**, **python** and a little **data-science**.
+Mastering the endless flood of familiy photos with **bash**, **python**, **data-science** and **machine-learning**.
+
+## Setup
+
+    brew install python fd exiftool slugify imagemagick
+
+    python -m venv .venv
+    source .venv/bin/activate
+    pip install -r requirements.txt
 
 ## Preparation
 
@@ -28,11 +36,20 @@ Connect iPhone via USB with iMac and import into Fotos-App (using an "import" Me
 ### Overview of file types
 
     cd ~/Pictures/todo-new
-    while read file; do echo ${file##*.}; done < <(find . -type f) | sort | uniq -c
+    while read file; do echo ${file##*.}; done < <(fd -t f) | sort | uniq -c
 
   with progress bar:
 
-    while read file; do echo ${file##*.}; done < <(find . -type f) | tqdm --total `find . -type f | wc -l` | sort | uniq -c
+    while read file; do echo ${file##*.}; done < <(fd -t f) | tqdm --total `find . -type f | wc -l` | sort | uniq -c
+
+  Convert `heic` to `jpg`:
+
+    fd -e heic -x convert {} {.}.jpg
+    fd -e heic -X rm
+
+  Rename `jpeg` to `jpg`:
+
+    fd -e jpeg -x mv {} {.}.jpg
 
 ### Move images and movies into **todo** folders
 
@@ -56,7 +73,7 @@ with progress bar:
 
 Find files with anomal filenames
 
-    ./anomaly-filename-detection.py --path ~/Downloads/photos/
+    ./filename-anomaly.py --path ~/Downloads/photos/
 
 Make all file lowercase
 
