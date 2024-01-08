@@ -14,14 +14,22 @@ Mastering the endless flood of familiy photos with **bash**, **python**, **data-
 
 ### Copy new photos & movies from iPhone into a local folder
 
-#### Method 1
+#### Method 1 (prefered)
 
-Open [icloud.com](https://www.icloud.com), select images and click download icon. This keeps live-images as MOV files.
+Open [icloud.com](https://www.icloud.com), select images and click download icon. This downloads a live-image as HEIC- & MOV-file and a regular image as HEIC file.
+
+Save ZIP file in `~/Downloads` and unzip
+
+    cd ~/Downloads
+    unzip "iCloud Photos.zip"
+    cd "iCloud Photos"
 
 #### Method 2
 
-Use AirDrop from Fotos App on iPhone to keep Live-Images (converted into MOV files). 
+Use AirDrop from Fotos App on iPhone to keep Live-Images (converted into MOV files).
+
 If Live-Images are not in the download folder, then select them on the iPhone under "Alben > Live Photos" and transer via AirDrop. 
+
 Then copy Live Photos via
 
     cd ~/Library/Caches/Cleanup At Startup
@@ -35,93 +43,97 @@ Connect iPhone via USB with iMac and import into Fotos-App (using an "import" Me
 
 ### Overview of file types
 
-    cd ~/Pictures/todo-new
     while read file; do echo ${file##*.}; done < <(fd -t f) | sort | uniq -c
 
   with progress bar:
 
     while read file; do echo ${file##*.}; done < <(fd -t f) | tqdm --total `find . -type f | wc -l` | sort | uniq -c
 
-  Convert `heic` to `jpg`:
+### Convert Images to JPG
+
+  Convert `HEIC` to `jpg`:
 
     fd -e heic -x convert {} {.}.jpg
     fd -e heic -X rm
+
+  Make file extensions lowercase:
+
+    for f in *.JPG; do mv "$f" "${f//JPG/jpg}"; done
+    for f in *.MOV; do mv "$f" "${f//MOV/mov}"; done
 
   Rename `jpeg` to `jpg`:
 
     fd -e jpeg -x mv {} {.}.jpg
 
-### Move images and movies into **todo** folders
+### Move images into Pictures folder
 
-  Images:
+    fd -e jpg -x mv {} ~/Pictures/TODO
 
-    find . -type f -iname "*.jpg" -exec mv {} ~/Pictures/todo/ \;
+### Move movies into Movies folder
 
-  Movies:
+    fd -e mov -x mv {} ~/Movies/TODO
 
-    find . -type f -iname "*.mov" -exec mv {} ~/Movies/todo/ \;
+## Image Processing
+
+    cd ~/Pictures
 
 ### Make a tar backup before doing any file changes
 
-    tar -cvf todo.tar todo/
+    tar -cvf TODO.tar TODO
 
 with progress bar:
 
-    tar -cvf todo.tar todo/ |& tqdm --total `find todo/ -type f | wc -l`
+    tar -cvf TODO.tar TODO |& tqdm --total `fd . TODO | wc -l`
 
-### Do some file cleanup
+### File Cleanup
 
-Find files with anomal filenames
+Find files with anomal filenames:
 
-    ./filename-anomaly.py --path ~/Downloads/photos/
+    cd ~/develop/family-photos
+    ./filename-anomaly.py --path ~/Pictures/TODO
 
-Make all file lowercase
+Rename file with anomal filename:
 
-    cd todo/
-    find . -iname "*.jpg" | while read f; do slugify -n "$f"; done            # dry-run
-    find . -iname "*.jpg" | while read f; do slugify -ad "$f"; done
+    mv weird-filename.jpg nice-filename.jpg
 
-Set file permissions
+Remove whitespace and special-characters in filenames and make lower-case:
 
-    cd todo/
+    cd ~/Pictures/TODO
+    while read f; do slugify -adx "$f"; done < <(fd -t f) | tqdm --total `fd -t f | wc -l`
+
+Set file permissions:
+
+    cd ~/Pictures/TODO
     chmod 644 *
-
-Remove trailing ` 2` index from filename
-
-    cd todo/
-    find . -type f -name "* *"
-    while read f; do mv "${f}" "${f/ 2/}"; done < <(find . -type f -iname "* 2.JPG")
-
-Remove parentheses like `(1)` from filename
-
-    cd todo/
-    find . -type f -iname "*(*"
-    while read f; do mv "${f}" "${f//\(/}"; done < <(find . -type f -iname "*(*")
-    find . -type f -iname "*)*"
-    while read f; do mv "${f}" "${f//\)/}"; done < <(find . -type f -iname "*)*")
 
 Remove Apple quarantine (when downloading files on a Mac, Apple adds the `x-attribute: com.apple.quarantine`)
 
-    find . -type f | xargs xattr -d com.apple.quarantine
+    fd -t f -x xattr -d com.apple.quarantine
 
-### Check if all photos have an EXIF date
+### Verify EXIF Date
 
-  List images with missing exif-date:
+List images with MISSING exif-date:
 
-    cd todo/
-    while read f; do exiftool $f | grep -q "Create Date" || echo $f; done < <(find . -type f)
+    cd ~/Pictures/TODO
+    while read f; do exiftool $f | grep -q "Create Date" || echo $f; done < <(fd -t f)
 
-### Remove duplicate images and movies
+Add exit date manually:
 
-  Get distribution of years:
+TODO
 
-    cd todo/
-    while read f; do exiftool $f | grep "Create Date" | head -n 1 | awk '{print $4}' | awk -F':' '{print $1}'; done < <(find . -type f) | tqdm --total `find . -type f | wc -l` | sort | uniq -c
+### Remove Duplicate Images
 
-  Search duplicates for all years
+Remove all images which are already on the backup drive
 
-    cd ~/Pictures
-    fdupes -rm todo/ Familie/2020/
+  Get year of current files:
+
+    cd ~/Pictures/TODO
+    while read f; do exiftool $f | grep "Create Date" | head -n 1 | awk '{print $4}' | awk -F':' '{print $1}'; done < <(fd -t f) | tqdm --total `fd -t f | wc -l` | sort | uniq -c
+
+  Summarize duplicates for a year, e.g. `2020`:
+
+    cd ~/Pictures/TODO
+    fdupes -r -m . /Volumes/Backup2/fotos/Familie/2020
 
   Delete duplicates from `todo` folder (preserves the first which is `Familie` folder)
 
