@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Image Duplicates</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 1rem;
+        font-family: "Helvetica Neue", "Helvetica", sans-serif;
+        font-size: 14px;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+      h1 {
+        margin-top: 4rem;
+        font-size: 20px;
+      }
+      .images {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+      }
+      .group:nth-child(odd) {
+        background-color: #fff;
+      }
+      figure {
+        margin: 0;
+      }
+      img {
+        border: 2px solid #000;
+        object-fit: cover;
+        width: 100%;
+        cursor: pointer;
+        transition: opacity 0.3s ease;
+      }
+      img.delete {
+        opacity: 0.2;
+      }
+    </style>
+  </head>
+  <body>
+    {% for duplicate in duplicates %}
+      <div class="group">
+        <h1>Score: {{ duplicate[1] }}</h1>
+        <div class="images">
+          {% for image_path in duplicate[0] %}
+            <figure>
+              <img src="{{ image_path }}">
+              <figcaption>{{ image_path }}</figcaption>
+            </figure>
+          {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+    <script>
+      async function postData(url, data) {
+        const response = await fetch(url, {
+          method: 'POST',
+          cache: 'no-cache',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(data)
+        })
+        return response.json()
+      }
+      document.addEventListener('DOMContentLoaded', () => {
+        const images = document.querySelectorAll('img')
+        images.forEach(image => {
+          image.addEventListener('click', ev => {
+            image.classList.toggle('delete')
+            path = image.getAttribute('src')
+            console.log(ev.target)
+            postData('/move', { path }).then(data => {
+              ev.target.src = data.path
+              ev.target.parentNode.children[1].textContent = data.path
+            })
+          })
+        })
+      })
+    </script>
+  </body>
+</html>
