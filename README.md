@@ -4,17 +4,19 @@ Mastering the endless flood of familiy photos with **bash**, **python**, **data-
 
 ## Setup
 
-    brew install python fd exiftool slugify imagemagick
-
+    brew install python fd exiftool slugify imagemagick cmake pyenv
+    pyenv install 3.10.9
+    pyenv shell 3.10.9
     python -m venv .venv
     source .venv/bin/activate
+    pip install --upgrade pip
     pip install -r requirements.txt
 
 ## Preparation
 
-### Copy new photos & movies from iPhone into a local folder
+### Copy Photos & Movies from iPhone into a Local Folder
 
-#### Method 1 (prefered)
+#### Method 1 (preferred)
 
 Open [icloud.com](https://www.icloud.com), select images and click download icon. This downloads a live-image as HEIC- & MOV-file and a regular image as HEIC file.
 
@@ -41,35 +43,32 @@ Then copy Live Photos via
 
 Connect iPhone via USB with iMac and import into Fotos-App (using an "import" Mediathek), then export original Photos
 
-### Overview of file types
+### Overview of File Types
 
     while read file; do echo ${file##*.}; done < <(fd -t f) | sort | uniq -c
-
-  with progress bar:
-
     while read file; do echo ${file##*.}; done < <(fd -t f) | tqdm --total `find . -type f | wc -l` | sort | uniq -c
 
 ### Convert Images to JPG
 
-  Convert `HEIC` to `jpg`:
+Convert `HEIC` to `jpg`:
 
     fd -e heic -x convert {} {.}.jpg
     fd -e heic -X rm
 
-  Make file extensions lowercase:
+Make file extensions lowercase:
 
     for f in *.JPG; do mv "$f" "${f//JPG/jpg}"; done
     for f in *.MOV; do mv "$f" "${f//MOV/mov}"; done
 
-  Rename `jpeg` to `jpg`:
+Rename `jpeg` to `jpg`:
 
     fd -e jpeg -x mv {} {.}.jpg
 
-### Move images into Pictures folder
+### Move Images into Pictures Folder
 
     fd -e jpg -x mv {} ~/Pictures/TODO
 
-### Move movies into Movies folder
+### Move Movies into Movies Folder
 
     fd -e mov -x mv {} ~/Movies/TODO
 
@@ -77,22 +76,19 @@ Connect iPhone via USB with iMac and import into Fotos-App (using an "import" Me
 
     cd ~/Pictures
 
-### Make a tar backup before doing any file changes
+Make a tar backup before doing any file changes
 
     tar -cvf TODO.tar TODO
-
-with progress bar:
-
     tar -cvf TODO.tar TODO |& tqdm --total `fd . TODO | wc -l`
 
 ### File Cleanup
 
-Find files with anomal filenames:
+Find files with filename anomalys:
 
     cd ~/develop/family-photos
     ./filename-anomaly.py --path ~/Pictures/TODO
 
-Rename file with anomal filename:
+Rename file with filename anomaly:
 
     mv weird-filename.jpg nice-filename.jpg
 
