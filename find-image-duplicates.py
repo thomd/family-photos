@@ -8,7 +8,6 @@ from flask import Flask, render_template, request
 import webbrowser
 from threading import Timer
 
-
 def open_browser():
       webbrowser.open_new("http://localhost:5001")
 
@@ -32,13 +31,13 @@ def group_images(image_pairs, path):
     return result
 
 def main(args):
+    # TODO check folders for existence
     image_folder = args['images'].name
     duplicates_folder = args['duplicates'].name
 
-    # phasher = PHash()
-    # encodings = phasher.encode_images(image_dir=image_folder, recursive=True)
+    phasher = PHash()
+    encodings = phasher.encode_images(image_dir=image_folder, recursive=True)
     # duplicates_to_remove = phasher.find_duplicates_to_remove(encoding_map=encodings, max_distance_threshold=0)
-    # duplicates = phasher.find_duplicates(encoding_map=encodings, scores=True, max_distance_threshold=args['threshold'])
     duplicates = {
         'a_img_0127.jpg': [],
         'a/img_0799.jpg': [('a/img_0798.jpg', 10)],
@@ -51,7 +50,7 @@ def main(args):
         'a/img_0558.jpg': [],
         'a/img_0389.jpg': [('a/img_0398.jpg', 10)]
     }
-
+    duplicates = phasher.find_duplicates(encoding_map=encodings, scores=True, max_distance_threshold=args['threshold'])
 
     # move duplicates_to_remove into duplicates_folder
     # for image in duplicates_to_remove:
@@ -74,10 +73,6 @@ def main(args):
             p = Path(request_data['path'])
             target_folder = duplicates_folder if list(p.parents)[-2].name == image_folder else image_folder
             target = Path(target_folder).joinpath(*p.parts[1:])
-            # print(p, type(p))
-            # print(p.exists(), p.is_file())
-            # print(target, type(target))
-            # print(p, type(p))
             Path(target).parents[0].mkdir(parents=True, exist_ok=True)
             p.rename(target)
             return {'path': str(target)}
@@ -86,9 +81,9 @@ def main(args):
         app.run("localhost", "5001")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Find Image Duplicates')
-    parser.add_argument('--images', default='./photos', metavar='PATH', type=Path, help='path to image files')
-    parser.add_argument('--duplicates', default='./photos_duplicates', metavar='PATH', type=Path, help='path to duplicates image files')
-    parser.add_argument('--www', action='store_true', default=False, help='open image selection tool in browser')
+    parser = argparse.ArgumentParser(description='Manage Image Duplicates')
+    parser.add_argument('--images', default='./photos', metavar='PATH', type=Path, help='image folder')
+    parser.add_argument('--duplicates', default='./photos_duplicates', metavar='PATH', type=Path, help='folder for image duplicates')
     parser.add_argument('--threshold', default=10, type=int, metavar='N', help='max distance threshold')
+    parser.add_argument('--www', action='store_true', default=False, help='start image de-selection tool in browser')
     main(vars(parser.parse_args()))

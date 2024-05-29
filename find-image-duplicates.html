@@ -70,7 +70,6 @@
           image.addEventListener('click', ev => {
             image.classList.toggle('delete')
             path = image.getAttribute('src')
-            console.log(ev.target)
             postData('/move', { path }).then(data => {
               ev.target.src = data.path
               ev.target.parentNode.children[1].textContent = data.path
