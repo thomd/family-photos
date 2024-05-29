@@ -15,7 +15,7 @@ warnings.filterwarnings('ignore')
 def open_browser():
       webbrowser.open_new("http://localhost:5001")
 
-def group_and_sort_images(image_pairs, path=None):
+def group_images(image_pairs, path=None):
     grouped = {}
     result = []
     for _img, connections in list(image_pairs.items()):
@@ -30,14 +30,14 @@ def group_and_sort_images(image_pairs, path=None):
                 if conn_img not in grouped:
                     new_group.append(conn_img)
                     grouped[conn_img] = True
-            new_group.sort()
-            result.append((new_group, weight))
-    return result
+            if len(new_group) > 1:
+                result.append((new_group, weight))
+    return sorted(result, key=lambda x: x[1], reverse=False)
 
 def main(args):
+    duplicates_folder = args['duplicates'].name
     if not args['duplicates'].exists():
         args['duplicates'].mkdir()
-        duplicates_folder = args['duplicates'].name
 
     if args['images'].exists():
         image_folder = args['images'].name
@@ -55,25 +55,7 @@ def main(args):
         print(f'moving {source_file} to {target_file}')
         source_file.rename(target_file)
 
-    duplicates = {
-        'a_img_0127.jpg': [],
-        'a/img_0799.jpg': [('a/img_0798.jpg', 10)],
-        'a/img_0773.jpg': [('a/img_0773.jpg', 4)],
-        'a/img_0766.jpg': [('a/img_0765.jpg', 8)],
-        'a/img_0216.jpg': [],
-        'a/img_0570.jpg': [('a/img_0571.jpg', 8), ('a/img_0569.jpg', 8)],
-        'a/img_0564.jpg': [('a/img_0566.jpg', 8)],
-        'a/img_0202.jpg': [('a/img_0201.jpg', 8)],
-        'a/img_0558.jpg': [],
-        'a/img_0389.jpg': [('a/img_0398.jpg', 10)]
-    }
     duplicates = phasher.find_duplicates(encoding_map=encodings, scores=True, max_distance_threshold=args['threshold'])
-
-    with open('duplicates.txt', mode='w') as file:
-        file.write(json.dumps(duplicates))
-
-    with open('duplicates_grouped.txt', mode='w') as file:
-        file.write(json.dumps(group_images(duplicates)))
 
     if args['www'] == True:
         app = Flask(__name__, template_folder='.', static_url_path='', static_folder='.')
