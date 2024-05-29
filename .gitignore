@@ -1,4 +1,9 @@
 test
 test_duplicates
+photos
+photos_duplicates
 *.pickle
 *.tar
+duplicates.txt
+duplicates_grouped.txt
+

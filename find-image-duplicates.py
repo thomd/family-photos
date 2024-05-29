@@ -3,26 +3,30 @@
 from imagededup.methods import PHash
 import os
 import argparse
+import json
 from pathlib import Path
 from flask import Flask, render_template, request
 import webbrowser
 from threading import Timer
 
+import warnings
+warnings.filterwarnings('ignore')
+
 def open_browser():
       webbrowser.open_new("http://localhost:5001")
 
-def group_images(image_pairs, path):
+def group_and_sort_images(image_pairs, path=None):
     grouped = {}
     result = []
     for _img, connections in list(image_pairs.items()):
         if len(connections) > 0:
-            img = f'{path}/{_img}'
+            img = _img if path == None else f'{path}/{_img}'
             if img in grouped:
                 continue
             new_group = [img]
             grouped[img] = True
             for _conn_img, weight in connections:
-                conn_img = f'{path}/{_conn_img}'
+                conn_img = _conn_img if path == None else f'{path}/{_conn_img}'
                 if conn_img not in grouped:
                     new_group.append(conn_img)
                     grouped[conn_img] = True
@@ -31,17 +35,30 @@ def group_images(image_pairs, path):
     return result
 
 def main(args):
-    # TODO check folders for existence
-    image_folder = args['images'].name
-    duplicates_folder = args['duplicates'].name
+    if not args['duplicates'].exists():
+        args['duplicates'].mkdir()
+        duplicates_folder = args['duplicates'].name
+
+    if args['images'].exists():
+        image_folder = args['images'].name
+    else:
+        print(f"folder '{args['images']}' does not exist")
+        return
 
     phasher = PHash()
     encodings = phasher.encode_images(image_dir=image_folder, recursive=True)
-    # duplicates_to_remove = phasher.find_duplicates_to_remove(encoding_map=encodings, max_distance_threshold=0)
+
+    duplicates_to_remove = phasher.find_duplicates_to_remove(encoding_map=encodings, max_distance_threshold=0)
+    for image in duplicates_to_remove:
+        source_file = Path(image_folder) / Path(image)
+        target_file = Path(duplicates_folder) / Path(source_file.name)
+        print(f'moving {source_file} to {target_file}')
+        source_file.rename(target_file)
+
     duplicates = {
         'a_img_0127.jpg': [],
         'a/img_0799.jpg': [('a/img_0798.jpg', 10)],
-        'a/img_0772.jpg': [('a/img_0773.jpg', 4)],
+        'a/img_0773.jpg': [('a/img_0773.jpg', 4)],
         'a/img_0766.jpg': [('a/img_0765.jpg', 8)],
         'a/img_0216.jpg': [],
         'a/img_0570.jpg': [('a/img_0571.jpg', 8), ('a/img_0569.jpg', 8)],
@@ -52,14 +69,12 @@ def main(args):
     }
     duplicates = phasher.find_duplicates(encoding_map=encodings, scores=True, max_distance_threshold=args['threshold'])
 
-    # move duplicates_to_remove into duplicates_folder
-    # for image in duplicates_to_remove:
-        # source_file = Path(image_folder) / Path(image)
-        # target_file = Path(duplicates_folder) / Path(source_file.name)
-        # print(f'moving {source_file} to {target_file}')
-        # source_file.rename(target_file)
+    with open('duplicates.txt', mode='w') as file:
+        file.write(json.dumps(duplicates))
 
-    # open duplicates webapp in browser
+    with open('duplicates_grouped.txt', mode='w') as file:
+        file.write(json.dumps(group_images(duplicates)))
+
     if args['www'] == True:
         app = Flask(__name__, template_folder='.', static_url_path='', static_folder='.')
 
@@ -77,7 +92,7 @@ def main(args):
             p.rename(target)
             return {'path': str(target)}
 
-        # Timer(1, open_browser).start()
+        Timer(1, open_browser).start()
         app.run("localhost", "5001")
 
 if __name__ == "__main__":
