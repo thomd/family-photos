@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+
+#
+# Photo Tools
+#
+# USAGE
+#
+#     photo-tools --types FOLDER              # list filetypes
+#
+
+show_help() {
+  awk '/^[^ #]/{c=1}c==0{print $0}' $0 | sed -n '/^#/p' | sed 1d | sed 's/^#/ /g' \
+    | perl -pe "s/ #(.*)$/$(tput setaf 0)\1$(tput sgr 0)/" \
+    | perl -pe "s/(USAGE|EXAMPLES|COMMANDS)/$(tput setaf 0)\1$(tput sgr 0)/" \
+    | perl -pe "s/\`(.+)\`/$(tput sgr 0 1)\1$(tput sgr 0)/"
+  exit 1
+}
+
+filetypes() {
+  [ ! -d "$1" ] && show_help
+  while read -r file
+  do
+    echo "${file##*.}"
+  done < <(fd . -t f "$1") \
+  | tqdm --total `fd . -t f "$1" | wc -l` \
+  | sort \
+  | uniq -c
+}
+
+[[ -z "$1" ]] && show_help
+
+while [ $# -gt 0 ]; do
+  case $1 in
+    -t|--types)
+      shift
+      filetypes "$1"
+      ;;
+    -h|--help)
+      show_help
+      ;;
+    *)
+      ;;
+  esac
+  shift
+done
+
+exit 0

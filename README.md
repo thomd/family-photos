@@ -12,19 +12,26 @@ Mastering the endless flood of familiy photos with **bash**, **python**, **data-
     pip install --upgrade pip
     pip install -r requirements.txt
 
+Alternatively use a Dockerfile
+
+TODO
+
 ## Preparation
 
 ### Copy Photos & Movies from iPhone into a Local Folder
 
-#### Method 1 (preferred)
+#### Method 1 (Preferred)
 
-Open [icloud.com](https://www.icloud.com), select images and click download icon. This downloads a live-image as HEIC- & MOV-file and a regular image as HEIC file.
+Open [icloud.com](https://www.icloud.com), select multiple images and click download icon. 
+
+This downloads images as HEIC files and in addition Live-Images as MOV files
 
 Save ZIP file in `~/Downloads` and unzip
 
     cd ~/Downloads
-    unzip "iCloud Photos.zip"
-    cd "iCloud Photos"
+    rm -r ~/develop/family-photos/todo
+    unzip -d ~/develop/family-photos/todo "iCloud Photos.zip"
+    cd ~/develop/family-photos
 
 #### Method 2
 
