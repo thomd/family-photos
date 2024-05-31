@@ -16,7 +16,7 @@ Alternatively use a Dockerfile
 
 TODO
 
-## Preparation
+## Download Images From iPhone
 
 ### Copy Photos & Movies from iPhone into a Local Folder
 
@@ -50,34 +50,13 @@ Then copy Live Photos via
 
 Connect iPhone via USB with iMac and import into Fotos-App (using an "import" Mediathek), then export original Photos
 
-### Overview of File Types
+## Preparations
 
-    while read file; do echo ${file##*.}; done < <(fd -t f) | sort | uniq -c
-    while read file; do echo ${file##*.}; done < <(fd -t f) | tqdm --total `find . -type f | wc -l` | sort | uniq -c
+1. Convert all images to `jpg` files and move into `photos` folder.
+2. Move all `mov` files into `movies` folder
 
-### Convert Images to JPG
-
-Convert `HEIC` to `jpg`:
-
-    fd -e heic -x convert {} {.}.jpg
-    fd -e heic -X rm
-
-Make file extensions lowercase:
-
-    for f in *.JPG; do mv "$f" "${f//JPG/jpg}"; done
-    for f in *.MOV; do mv "$f" "${f//MOV/mov}"; done
-
-Rename `jpeg` to `jpg`:
-
-    fd -e jpeg -x mv {} {.}.jpg
-
-### Move Images into Pictures Folder
-
-    fd -e jpg -x mv {} ~/Pictures/TODO
-
-### Move Movies into Movies Folder
-
-    fd -e mov -x mv {} ~/Movies/TODO
+    ./photo-tools --types todo
+    ./photo-tools --group todo
 
 ## Image Processing
 

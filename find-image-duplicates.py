@@ -78,7 +78,7 @@ def main(args):
         app.run("localhost", "5001")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Manage Image Duplicates')
+    parser = argparse.ArgumentParser(description='Manage Image Duplicates', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--images', default='./photos', metavar='PATH', type=Path, help='image folder')
     parser.add_argument('--duplicates', default='./photos_duplicates', metavar='PATH', type=Path, help='folder for image duplicates')
     parser.add_argument('--threshold', default=10, type=int, metavar='N', help='max distance threshold')

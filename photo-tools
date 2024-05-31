@@ -6,6 +6,12 @@
 # USAGE
 #
 #     photo-tools --types FOLDER              # list filetypes
+#     photo-tools --group FOLDER              # group images into 'photos' and movies into 'movies' folder
+#
+# COMMANDS
+#
+#     fd -e jpg . todo -x mv {} photos/       # mode jpg files into 'photos' folder
+#     fd -e mov . todo -x mv {} movies/       # mode mpv files into 'movies' folder
 #
 
 show_help() {
@@ -22,9 +28,21 @@ filetypes() {
   do
     echo "${file##*.}"
   done < <(fd . -t f "$1") \
-  | tqdm --total `fd . -t f "$1" | wc -l` \
   | sort \
   | uniq -c
+}
+
+group() {
+  [ ! -d "$1" ] && show_help
+  fd . -e heic "$1" -x convert {} {.}.jpg
+  fd . -e heic "$1" -X rm
+  fd . -e jpeg "$1" -x mv {} {.}.jpg
+  fd . -s -e JPG "$1" -x mv {} {.}.jpg
+  fd . -s -e MOV "$1" -x mv {} {.}.mov
+  mkdir -p photos
+  fd . -e jpg "$1" -x mv {} photos/
+  mkdir -p movies
+  fd . -e mov "$1" -x mv {} movies/
 }
 
 [[ -z "$1" ]] && show_help
@@ -34,6 +52,10 @@ while [ $# -gt 0 ]; do
     -t|--types)
       shift
       filetypes "$1"
+      ;;
+    -g|--group)
+      shift
+      group "$1"
       ;;
     -h|--help)
       show_help

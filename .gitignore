@@ -4,6 +4,8 @@ test
 test_duplicates
 photos
 photos_duplicates
+movies
+movies_duplicates
 *.pickle
 *.tar
 duplicates.txt
