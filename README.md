@@ -84,7 +84,7 @@ Manually remove images which are slightly similar using a webapp (using ...):
 
 Check for images with missing EXIF date:
 
-    ./photo-tools --exit photos
+    ./photo-tools --exif photos
 
 
 

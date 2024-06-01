@@ -39,7 +39,7 @@ normalize() {
   while read -r file
   do
     chmod 644 "$file"
-    xattr -d com.apple.quarantine "$file" 2>/dev/null
+    #xattr -d com.apple.quarantine "$file" 2>/dev/null
     (cd "$(dirname "$file")" && mv "${file##*/}" "$(echo ${file##*/} | tr -s ' ' '-' | tr 'A-Z' 'a-z')")
   done < <(fd . -t f "$1")
 }
@@ -50,7 +50,7 @@ group() {
   fd . -e jpg -e jpeg -e png -e gif -e heic "$1" -x mv {} photos/
   mkdir -p movies
   fd . -e mov -e mp4 "$1" -x mv {} movies/
-  [ $(fd . -t f "$1" | wc -l | tr -s ' ') -eq 0 ] && rm -ir "$1"
+  [ $(fd . -t f "$1" | wc -l | tr -s ' ') -eq 0 ] && rm -r "$1"
 }
 
 aec() {
