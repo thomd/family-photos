@@ -50,6 +50,7 @@ group() {
   fd . -e jpg -e jpeg -e png -e gif -e heic "$1" -x mv {} photos/
   mkdir -p movies
   fd . -e mov -e mp4 "$1" -x mv {} movies/
+  rmdir "$1"
 }
 
 aec() {

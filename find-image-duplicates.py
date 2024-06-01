@@ -35,52 +35,40 @@ def group_images(image_pairs, path=None):
     return sorted(result, key=lambda x: x[1], reverse=False)
 
 def main(args):
-    duplicates_folder = args['duplicates'].name
-    if not args['duplicates'].exists():
-        args['duplicates'].mkdir()
-
-    if args['images'].exists():
-        image_folder = args['images'].name
-    else:
+    if not args['images'].exists():
         print(f"folder '{args['images']}' does not exist")
         return
 
+    image_folder = args['images']
+    duplicates_folder = Path(f'{image_folder.name}_duplicates')
+
     phasher = PHash()
-    encodings = phasher.encode_images(image_dir=image_folder, recursive=True)
+    duplicates = group_images(phasher.find_duplicates(image_dir=image_folder.name, recursive=True, scores=True, max_distance_threshold=args['threshold']), image_folder.name)
 
-    duplicates_to_remove = phasher.find_duplicates_to_remove(encoding_map=encodings, max_distance_threshold=0)
-    for image in duplicates_to_remove:
-        source_file = Path(image_folder) / Path(image)
-        target_file = Path(duplicates_folder) / Path(source_file.name)
-        print(f'moving {source_file} to {target_file}')
-        source_file.rename(target_file)
-
-    duplicates = phasher.find_duplicates(encoding_map=encodings, scores=True, max_distance_threshold=args['threshold'])
-
-    if args['www'] == True:
+    if len(duplicates) > 0:
         app = Flask(__name__, template_folder='.', static_url_path='', static_folder='.')
 
         @app.route('/')
         def index_page():
-            return render_template('./find-image-duplicates.html', duplicates=group_images(duplicates, image_folder))
+            return render_template('./find-image-duplicates.html', duplicates=duplicates)
 
         @app.route('/move', methods=['POST'])
         def move_image():
             request_data = request.get_json()
             p = Path(request_data['path'])
-            target_folder = duplicates_folder if list(p.parents)[-2].name == image_folder else image_folder
+            target_folder = duplicates_folder.name if list(p.parents)[-2].name == image_folder.name else image_folder.name
             target = Path(target_folder).joinpath(*p.parts[1:])
             Path(target).parents[0].mkdir(parents=True, exist_ok=True)
             p.rename(target)
             return {'path': str(target)}
 
         Timer(1, open_browser).start()
-        app.run("localhost", "5001")
+        app.run('localhost', '5001')
+    else:
+        print('\n no duplicates found')
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Manage Image Duplicates', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--images', default='./photos', metavar='PATH', type=Path, help='image folder')
-    parser.add_argument('--duplicates', default='./photos_duplicates', metavar='PATH', type=Path, help='folder for image duplicates')
     parser.add_argument('--threshold', default=10, type=int, metavar='N', help='max distance threshold')
-    parser.add_argument('--www', action='store_true', default=False, help='start image de-selection tool in browser')
     main(vars(parser.parse_args()))

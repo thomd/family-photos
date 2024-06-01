@@ -12,13 +12,7 @@ Mastering the endless flood of familiy photos with **bash**, **python**, **data-
     pip install --upgrade pip
     pip install -r requirements.txt
 
-Alternatively use a Dockerfile
-
-TODO
-
 ## Download Images From iPhone
-
-### Copy Photos & Movies from iPhone into a Local Folder
 
 #### Method 1 (Preferred)
 
@@ -76,16 +70,15 @@ Find files with filename anomalies:
 
 Remove all images which are already on the backup drive (using md5 hash):
 
-
+    ./photo-tools --duplicates photos /path/to/archive/folder
 
 Remove images which are very similar (using ...):
 
-    ./
+    ./remove-duplicates.py --images photos
 
-Remove images which are slightly similar using a webapp (using ...):
+Manually remove images which are slightly similar using a webapp (using ...):
 
-
-
+    ./find-image-duplicates.py --images photos --threshold 10
 
 ## Distribute into 'year/month' folders
 
