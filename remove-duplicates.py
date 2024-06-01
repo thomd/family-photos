@@ -16,6 +16,8 @@ def main(args):
 
     image_folder = args['images']
     duplicates_folder = Path(f'{image_folder.name}_duplicates')
+    if not duplicates_folder.exists():
+        duplicates_folder.mkdir()
 
     phasher = PHash()
     duplicates_to_remove = phasher.find_duplicates_to_remove(image_dir=image_folder.name, recursive=True, max_distance_threshold=0, outfile='removed.json')

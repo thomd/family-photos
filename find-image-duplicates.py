@@ -41,6 +41,8 @@ def main(args):
 
     image_folder = args['images']
     duplicates_folder = Path(f'{image_folder.name}_duplicates')
+    if not duplicates_folder.exists():
+        duplicates_folder.mkdir()
 
     phasher = PHash()
     duplicates = group_images(phasher.find_duplicates(image_dir=image_folder.name, recursive=True, scores=True, max_distance_threshold=args['threshold']), image_folder.name)
