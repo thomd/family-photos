@@ -56,6 +56,7 @@ Normalize images:
 - Set propper file permissions:
 - Remove Apple quarantine (when downloading files on a Mac, Apple adds the `x-attribute: com.apple.quarantine`)
 
+
     ./photo-tools --normalize todo
 
 Move images into `photos` folder and movies into `movies` folder:
