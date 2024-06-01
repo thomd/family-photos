@@ -38,9 +38,9 @@ normalize() {
   fd . -e jpeg "$1" -x mv {} {.}.jpg
   while read -r file
   do
-    slugify -adx "$file"
     chmod 644 "$file"
-    xattr -d com.apple.quarantine "$file"
+    xattr -d com.apple.quarantine "$file" 2>/dev/null
+    (cd "$(dirname "$file")" && mv "${file##*/}" "$(echo ${file##*/} | tr -s ' ' '-' | tr 'A-Z' 'a-z')")
   done < <(fd . -t f "$1")
 }
 
