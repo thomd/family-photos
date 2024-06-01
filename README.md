@@ -52,45 +52,29 @@ Connect iPhone via USB with iMac and import into Fotos-App (using an "import" Me
 
 ## Preparations
 
+    ./photo-tools --types todo
+
 1. Convert all images to `jpg` files and move into `photos` folder.
 2. Move all `mov` files into `movies` folder
 
-    ./photo-tools --types todo
     ./photo-tools --group todo
 
-## Image Processing
+3. Find files with filename anomalies:
 
-    cd ~/Pictures
+    ./filename-anomaly.py --path photos
 
-Make a tar backup before doing any file changes
+4. Remove whitespace and special-characters in filenames and make lower-case:
 
-    tar -cvf TODO.tar TODO
-    tar -cvf TODO.tar TODO |& tqdm --total `fd . TODO | wc -l`
+    while read f; do slugify -adx "$f"; done < <(fd . -t f photos)
 
-### File Cleanup
+5. Set propper file permissions:
 
-Find files with filename anomalys:
-
-    cd ~/develop/family-photos
-    ./filename-anomaly.py --path ~/Pictures/TODO
-
-Rename file with filename anomaly:
-
-    mv weird-filename.jpg nice-filename.jpg
-
-Remove whitespace and special-characters in filenames and make lower-case:
-
-    cd ~/Pictures/TODO
-    while read f; do slugify -adx "$f"; done < <(fd -t f) | tqdm --total `fd -t f | wc -l`
-
-Set file permissions:
-
-    cd ~/Pictures/TODO
+    ch photos
     chmod 644 *
 
-Remove Apple quarantine (when downloading files on a Mac, Apple adds the `x-attribute: com.apple.quarantine`)
+6. Remove Apple quarantine (when downloading files on a Mac, Apple adds the `x-attribute: com.apple.quarantine`)
 
-    fd -t f -x xattr -d com.apple.quarantine
+    fd . -t f todo -x xattr -d com.apple.quarantine
 
 ### Verify EXIF Date
 
