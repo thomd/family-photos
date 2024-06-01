@@ -52,44 +52,54 @@ Connect iPhone via USB with iMac and import into Fotos-App (using an "import" Me
 
 ## Preparations
 
+Print file types:
+
     ./photo-tools --types todo
 
-1. Convert all images to `jpg` files and move into `photos` folder.
-2. Move all `mov` files into `movies` folder
+Normalize images:
+
+- Remove whitespace and special-characters in filenames and make lower-case:
+- Set propper file permissions:
+- Remove Apple quarantine (when downloading files on a Mac, Apple adds the `x-attribute: com.apple.quarantine`)
+
+    ./photo-tools --normalize todo
+
+Move images into `photos` folder and movies into `movies` folder:
 
     ./photo-tools --group todo
 
-3. Find files with filename anomalies:
+Find files with filename anomalies:
 
     ./filename-anomaly.py --path photos
 
-4. Remove whitespace and special-characters in filenames and make lower-case:
+## Remove Duplicate Images
 
-    while read f; do slugify -adx "$f"; done < <(fd . -t f photos)
+Remove all images which are already on the backup drive (using md5 hash):
 
-5. Set propper file permissions:
 
-    ch photos
-    chmod 644 *
 
-6. Remove Apple quarantine (when downloading files on a Mac, Apple adds the `x-attribute: com.apple.quarantine`)
+Remove images which are very similar (using ...):
 
-    fd . -t f todo -x xattr -d com.apple.quarantine
+    ./
 
-### Verify EXIF Date
+Remove images which are slightly similar using a webapp (using ...):
 
-List images with MISSING exif-date:
 
-    cd ~/Pictures/TODO
-    while read f; do exiftool $f | grep -q "Create Date" || echo $f; done < <(fd -t f)
 
-Add exit date manually:
 
-TODO
+## Distribute into 'year/month' folders
 
-### Remove Duplicate Images
+Check for images with missing EXIF date:
 
-Remove all images which are already on the backup drive
+    ./photo-tools --exit photos
+
+
+
+
+
+
+
+
 
   Get year of current files:
 

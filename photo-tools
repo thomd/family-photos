@@ -5,14 +5,12 @@
 #
 # USAGE
 #
-#     photo-tools --types FOLDER              # list filetypes
-#     photo-tools --normalize FOLDER          # slugify filenames, set propper file permissions
-#     photo-tools --group FOLDER              # group images into 'photos' and movies into 'movies' folder
-#
-# COMMANDS
-#
-#     fd -e jpg . todo -x mv {} photos/       # mode jpg files into 'photos' folder
-#     fd -e mov . todo -x mv {} movies/       # mode mpv files into 'movies' folder
+#     photo-tools --types FOLDER                     # list filetypes
+#     photo-tools --normalize FOLDER                 # slugify filenames, set propper file permissions
+#     photo-tools --group FOLDER                     # group images into 'photos' and movies into 'movies' folder
+#     photo-tools --aec FOLDER                       # find images with an absolute error count, i.e. number of different pixels, of zero
+#     photo-tools --exif FOLDER                      # list images with missing exif-date
+#     photo-tools --duplicates FOLDER...             # find duplicates in backup drive
 #
 
 show_help() {
@@ -35,8 +33,7 @@ filetypes() {
 
 normalize() {
   [ ! -d "$1" ] && show_help
-  # FIXME convert -> magick
-  fd . -e heic "$1" -x convert {} {.}.jpg
+  fd . -e heic "$1" -x magick {} {.}.jpg
   fd . -e heic "$1" -X rm
   fd . -e jpeg "$1" -x mv {} {.}.jpg
   while read -r file
@@ -55,6 +52,48 @@ group() {
   fd . -e mov -e mp4 "$1" -x mv {} movies/
 }
 
+aec() {
+  [ ! -d "$1" ] && show_help
+  echo -e "\n $(tput setaf 4)Images with an absolute error count of 0 (number of different pixels):$(tput sgr 0)\n"
+  declare -a files
+  while read -r file
+  do
+    files=("${files[@]}" "$file")
+  done < <(fd . -t f "$1")
+  N=${#files[@]}
+  TOTAL=$((N * (N - 1) / 2))
+  {
+    for ((i=0; i<N; i++)); do
+      for ((j=i+1; j<N; j++)); do
+        file1=${files[$i]}
+        file2=${files[$j]}
+        ae=$(magick compare -metric ae ${file1} ${file2} null: 2>&1)
+        echo "$(printf "%.f" $ae) ${file1} ${file2}"
+      done
+    done
+  } | tqdm --total $TOTAL --ncols 120 | sed -n /^0/p
+}
+
+missing_exif_date() {
+  [ ! -d "$1" ] && show_help
+  echo -e "\n $(tput setaf 4)Images with missing EXIF date:$(tput sgr 0)\n"
+  while read -r file
+  do
+    exiftool "$file" | grep -q "Create Date" || echo $file
+  done < <(fd . -t f "$1")
+}
+
+duplicates() {
+  [ ! -d "$1" -o ! -d "$2" ] && echo -e "\n $(tput setaf 1)${1} or ${2} is not a valid folder$(tput sgr 0)" && show_help
+  dup_folder="${1}_duplicates"
+  while read -r file
+  do
+    mkdir -p "$dup_folder"
+    echo -e " move $(tput setaf 0)${file}$(tput sgr 0) into $(tput setaf 0)${dup_folder}$(tput sgr 0)"
+    mv "$file" "$dup_folder"
+  done < <(while read -r dup; do echo "$dup" | awk -v pattern="^${1}" '$0 ~ pattern'; done < <(fdupes -r photos todo))
+}
+
 [[ -z "$1" ]] && show_help
 
 while [ $# -gt 0 ]; do
@@ -66,6 +105,21 @@ while [ $# -gt 0 ]; do
     -n|--normalize)
       shift
       normalize "$1"
+      ;;
+    --aec)
+      shift
+      aec "$1"
+      ;;
+    --exif)
+      shift
+      missing_exif_date "$1"
+      ;;
+    -d|--duplicates)
+      shift
+      folder1="$1"
+      shift
+      folder2="$1"
+      duplicates "$folder1" "$folder2"
       ;;
     -g|--group)
       shift
