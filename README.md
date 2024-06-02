@@ -76,7 +76,7 @@ Manually remove images which are slightly similar using a webapp (using ...):
 
     ./find-image-duplicates.py --images photos --threshold 10
 
-## Distribute into 'year/month' folders
+## Distribute into 'year/year-month-day' folders
 
 Check for images with missing EXIF date:
 

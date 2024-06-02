@@ -6,7 +6,7 @@ _phototools_completions() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
-    COMPREPLY=($(compgen -W "--types --normalize --group --aec --exif --duplicates --distribute" -- ${cur}))
+    COMPREPLY=($(compgen -W "--help --types --normalize --group --aec --exif --duplicates --distribute $(fd -I -t d -d 1)" -- ${cur}))
 }
 
 complete -F _phototools_completions photo-tools
