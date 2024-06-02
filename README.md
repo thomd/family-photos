@@ -4,7 +4,9 @@ Mastering the endless flood of familiy photos with **bash**, **python**, **data-
 
 ## Setup
 
-    brew install python fd exiftool slugify imagemagick cmake pyenv
+Setup of python based tools:
+
+    brew install python cmake pyenv
     pyenv install 3.10.9
     pyenv shell 3.10.9
     python -m venv .venv
@@ -12,7 +14,12 @@ Mastering the endless flood of familiy photos with **bash**, **python**, **data-
     pip install --upgrade pip
     pip install -r requirements.txt
 
-## Download Images From iPhone
+Setup of bash based tools:
+
+    brew install fd exiftool imagemagick cmake
+    make
+
+## Download Images and Movies From iPhone
 
 #### Method 1 (Preferred)
 
@@ -44,7 +51,7 @@ Then copy Live Photos via
 
 Connect iPhone via USB with iMac and import into Fotos-App (using an "import" Mediathek), then export original Photos
 
-## Preparations
+## Preparation
 
 Print file types:
 
@@ -82,58 +89,15 @@ Check for images with missing EXIF date:
 
     ./photo-tools --exif photos
 
+Distribute images into 'year/year-month-day' folders:
 
+    ./photo-tools --distribute photos
 
+## Copy Images onto External Backup Drive
 
+    rsync -avP --stats /Users/thomas/Pictures/Familie /Volumes/Backup/fotos
 
-
-
-
-
-  Get year of current files:
-
-    cd ~/Pictures/TODO
-    while read f; do exiftool $f | grep "Create Date" | head -n 1 | awk '{print $4}' | awk -F':' '{print $1}'; done < <(fd -t f) | tqdm --total `fd -t f | wc -l` | sort | uniq -c
-
-  Summarize duplicates for a year, e.g. `2020`:
-
-    cd ~/Pictures/TODO
-    fdupes -r -m . /Volumes/Backup2/fotos/Familie/2020
-
-  Delete duplicates from `todo` folder (preserves the first which is `Familie` folder)
-
-    fdupes -r todo/ Familie/2020/
-    fdupes -rdN todo/ Familie/2020/                                                                    # preserve the first file and delete rest without prompting
-    while read f; do echo $f | grep ^todo | xargs rm -v; done < <(fdupes -Ar todo/ Familie/2020/)      # delete files from todo folder
-
-### Manually delete bad images which are not worth to archive via images viewer, e.g. ApolloOne
-
-    cd todo/
-    open -a ApolloOne .
-
-# Image Management
-
-## Distribute photos into date folders
-
-  sort images within `todo/*` into date folders `todo/2020/*`, `todo/2019/*`, ...
-
-    cd todo/
-    count=0; while IFS= read -r -d '' F; do
-      D=`exiftool "$F" | grep "^Create Date" | head -n 1 | awk '{print $4}' | tr ':' '-'`;
-      DD=`echo "$D" | cut -c 1-4`;
-      count=$(($count+1));
-      echo "[$count] $DD $D $F";
-      mkdir -p "$DD/$D";
-      FF=`basename "$F" | tr -s ' ' '-'`;
-      mv "$F" "$DD/$D/$FF";
-    done < <(find . -maxdepth 1 -type f -iname '*.jpg' -print0)
-
-  or use bash script
-
-    cd Pictures/
-    ./distribute-images.sh todo
-
-## import family photos in Photos app
+## Import Photos into Photos App
 
 1. Open `Photos`: Hold down `Option` Key and click `Photos`, then select Library.
 
@@ -145,34 +109,4 @@ Check for images with missing EXIF date:
 
 4. Select `Familie` folder
 
-## backup family photos
-
-    rsync -avP --stats /Users/thomas/Pictures/Familie /Volumes/Backup/fotos
-    rsync -avP --stats /Users/thomas/Pictures/Familie /Volumes/Backup/fotos
-
-# Movies Management
-
-First check for possible movies files
-
-    while read file; do echo ${file##*.}; done < <(find . -type f) | sort | uniq -c
-
-## Sort movies into todo/date folders
-
-  sort movies within `todo/*` into date folders `todo/2020/*`
-
-    cd todo/
-    count=0; while IFS= read -r -d '' F; do
-      D=`exiftool "$F" | grep "^Date/Time Original" | head -n 1 | awk '{print $4}' | tr ':' '-'`;
-      DD=`echo "$D" | cut -c 1-4`;
-      count=$(($count+1));
-      mkdir -p "$DD/$D";
-      FF=`basename "$F" | tr -s ' ' '-'`;
-      echo "[$count] $F $DD/$D/$FF";
-      mv "$F" "$DD/$D/$FF";
-    done < <(find . -maxdepth 1 -type f -iname '*.mov' -or -iname '*.mp4' -or -iname '*.m4v' -or -iname '*.avi' -print0)
-
-## Backup family movies
-
-    rsync -avP --stats /Users/thomas/Movies/Familie /Volumes/Backup/filme
-    rsync -avP --stats /Users/thomas/Movies/Thomas /Volumes/Backup/filme
 
