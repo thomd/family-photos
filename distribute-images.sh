@@ -3,7 +3,6 @@
 [ -z "$1" ] && echo >&2 "folder required!" && exit 1
 cd "$1" || exit 1
 
-N=$(find . -type f | wc -l)
 
 yesno() {
   read -r -p "$1 [y/N] " response
@@ -11,6 +10,7 @@ yesno() {
 }
 yesno "distribute $(tput setaf 2)${N// /}$(tput sgr 0) images in $(tput setaf 2)$(pwd)$(tput sgr 0) ?"
 
+N=$(find . -type f | wc -l)
 COUNT=0
 while IFS= read -r -d '' F; do
   D=$(exiftool "$F" | grep "Create Date" | head -n 1 | awk '{print $4}' | tr ':' '-')
