@@ -67,7 +67,7 @@ Move images into `photos` folder and movies into `movies` folder:
 
 Find files with filename anomalies:
 
-    ./filename-anomaly.py --path photos
+    ./filename-anomaly --path photos
 
 ## Remove Duplicate Images
 
@@ -77,11 +77,11 @@ Remove all images which are already on the backup drive (using md5 hash):
 
 Remove images which are very similar (using ...):
 
-    ./remove-duplicates.py --images photos
+    ./remove-duplicates --images photos
 
 Manually remove images which are slightly similar using a webapp (using ...):
 
-    ./find-image-duplicates.py --images photos --threshold 10
+    ./find-image-duplicates --images photos --threshold 10
 
 ## Distribute into 'year/year-month-day' folders
 

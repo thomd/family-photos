@@ -13,6 +13,18 @@
 #     photo-tools --duplicates FOLDER...             # find duplicates in backup drive
 #     photo-tools --distribute FOLDER                # distribute images into 'year/month' folders
 #
+# EXAMPLES
+#
+#     unzip -d todo "~/Downloads/iCloud Photos.zip"
+#     photo-tools --types todo
+#     photo-tools --normalize todo
+#     photo-tools --group todo
+#     python filename-anomaly --path photos
+#     python remove-duplicates --images photos
+#     python find-image-duplicates --images photos --threshold 10
+#     photo-tools --exif photos
+#     photo-tools --distribute photos
+#
 
 show_help() {
   awk '/^[^ #]/{c=1}c==0{print $0}' $0 | sed -n '/^#/p' | sed 1d | sed 's/^#/ /g' \
@@ -99,19 +111,17 @@ duplicates() {
 distribute() {
   [ ! -d "$1" ] && show_help
   N=$(fd . -t f "$1" | wc -l)
-  C=0
   while read -r file
   do
     date=$(exiftool "$file" | grep "Create Date" | head -n 1 | awk '{print $4}' | tr ':' '-')
     if [ -n "$date" ]; then
       year=$(echo "$date" | cut -c 1-4)
       filename=$(basename "$file")
-      C=$((C+1))
       mkdir -p "$year/$date"
-      echo "$(tput setaf 2)[$C/${N// /}]$(tput sgr 0) $year/$date/$filename"
+      echo "$year/$date/$filename"
       mv "$file" "$year/$date/$filename"
     fi
-  done < <(fd . -t f "$1")
+  done < <(fd . -t f "$1") | tqdm --total $N --null --ncols 120 --colour='green'
 }
 
 [[ -z "$1" ]] && show_help
