@@ -75,11 +75,11 @@ Remove all images which are already on the backup drive (using md5 hash):
 
     ./photo-tools --duplicates photos /path/to/archive/folder
 
-Remove images which are very similar (using ...):
+Remove images which are very similar (using dHash):
 
     ./remove-duplicates --images photos
 
-Manually remove images which are slightly similar using a webapp (using ...):
+Manually remove images which are slightly similar using a webapp (using dHash):
 
     ./find-image-duplicates --images photos --threshold 10
 
@@ -95,7 +95,7 @@ Distribute images into 'year/year-month-day' folders:
 
 ## Copy Images onto External Backup Drive
 
-    rsync -avP --stats /Users/thomas/Pictures/Familie /Volumes/Backup/fotos
+    rsync -avP --stats Familie /Volumes/Backup/fotos
 
 ## Import Photos into Photos App
 
