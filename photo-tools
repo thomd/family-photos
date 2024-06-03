@@ -11,7 +11,8 @@
 #     photo-tools --aec FOLDER                       # find images with an absolute error count, i.e. number of different pixels, of zero
 #     photo-tools --exif FOLDER                      # list images with missing exif-date
 #     photo-tools --duplicates FOLDER...             # find duplicates in backup drive
-#     photo-tools --distribute FOLDER                # distribute images into 'year/month' folders
+#     photo-tools --distribute FOLDER                # distribute images into 'year/year-month-day' folders
+#     photo-tools --clean                            # clean current directory of working files
 #
 # EXAMPLES
 #
@@ -124,10 +125,21 @@ distribute() {
   done < <(fd . -t f "$1") | tqdm --total $N --null --ncols 120 --colour='green'
 }
 
+clean() {
+  fd -I -t d todo -X rm -r {}
+  fd -I -t d photos -X rm -r {}
+  fd -I -t d movies -X rm -r {}
+  fd -I -t d -d 1 --regex '^20[0-9]{2}' -X rm -r {}
+  rm removed.json
+}
+
 [[ -z "$1" ]] && show_help
 
 while [ $# -gt 0 ]; do
   case $1 in
+    --clean)
+      clean
+      ;;
     --types)
       shift
       filetypes "$1"
