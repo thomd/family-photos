@@ -67,7 +67,7 @@ Move images into `photos` folder and movies into `movies` folder:
 
 Find files with filename anomalies:
 
-    ./filename-anomaly --path photos
+    ./filename-anomaly --path todo_photos
 
 ## Remove Duplicate Images
 
@@ -77,25 +77,25 @@ Remove all images which are already on the backup drive (using md5 hash):
 
 Remove images which are very similar (using dHash):
 
-    ./remove-duplicates --images photos
+    ./remove-duplicates --images todo_photos
 
 Manually remove images which are slightly similar using a webapp (using dHash):
 
-    ./find-image-duplicates --images photos --threshold 10
+    ./find-image-duplicates --images todo_photos --threshold 10
 
 ## Distribute into 'year/year-month-day' folders
 
 Check for images with missing EXIF date:
 
-    ./photo-tools --exif photos
+    ./photo-tools --exif todo_photos
 
 Distribute images into 'year/year-month-day' folders:
 
-    ./photo-tools --distribute photos
+    ./photo-tools --distribute todo_photos
 
 ## Copy Images onto External Backup Drive
 
-    rsync -avP --stats Familie /Volumes/Backup/fotos
+    rsync -avP --stats Fotos /Volumes/Backup/fotos
 
 ## Import Photos into Photos App
 

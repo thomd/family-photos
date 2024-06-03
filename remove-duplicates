@@ -29,5 +29,5 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Manage Image Duplicates', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--images', default='./photos', metavar='PATH', type=Path, help='image folder')
+    parser.add_argument('--images', default='./todo_photos', metavar='PATH', type=Path, help='image folder')
     main(vars(parser.parse_args()))

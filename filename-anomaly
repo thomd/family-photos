@@ -18,7 +18,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Anomaly Filename Detection')
-    parser.add_argument('--path', default='./photos', metavar='PATH', type=pathlib.Path, help='path to image files')
+    parser.add_argument('--path', default='./todo_photos', metavar='PATH', type=pathlib.Path, help='path to image files')
     parser.add_argument('--features', default=6, type=int, metavar='N', help='max features')
     parser.add_argument('--z-score', default=4, type=int, metavar='N', help='z-score')
     main(vars(parser.parse_args()))
