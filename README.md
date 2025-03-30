@@ -109,4 +109,9 @@ Distribute images into 'year/year-month-day' folders:
 
 4. Select `Familie` folder
 
+## Photo Applications
+
+Alternative apps for photo management:
+
+1. [PhotoPrism](https://www.photoprism.app/) is an AI-Powered Photos App for the Decentralized Web. It makes use of the latest technologies to tag and find pictures automatically without getting in your way. You can run it at home, on a private server, or in the cloud.
 
