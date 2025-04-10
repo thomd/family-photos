@@ -113,5 +113,5 @@ Distribute images into 'year/year-month-day' folders:
 
 Alternative apps for photo management:
 
-1. [PhotoPrism](https://www.photoprism.app/) is an AI-Powered Photos App for the Decentralized Web. It makes use of the latest technologies to tag and find pictures automatically without getting in your way. You can run it at home, on a private server, or in the cloud.
-
+1. [PhotoPrism](https://www.photoprism.app/) is an AI-Powered Photos App for the Decentralized Web. It makes use of the latest technologies to tag and find
+   pictures automatically without getting in your way. You can run it at home, on a private server, or in the cloud. See also this [docker-compose.yml](https://awesome-docker-compose.com/apps/photo-server/photoprism).
