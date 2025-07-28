@@ -109,6 +109,16 @@ Distribute images into 'year/year-month-day' folders:
 
 4. Select `Familie` folder
 
+## Scanning Old Photos
+
+Crop scanned old photos with
+
+    ./crop.py
+
+## Face Clustering
+
+Use [faceprints](https://github.com/Nexuist/faceprints).
+
 ## Photo Applications
 
 Alternative apps for photo management:
