@@ -1,0 +1,3 @@
+- [ ] try out cli tool f2(1)
+- [ ] try out [faceprints](https://github.com/Nexuist/faceprints)
+- [ ] try out [seeV](https://github.com/nexuist/seev)
