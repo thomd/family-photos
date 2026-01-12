@@ -2,3 +2,4 @@
 - [ ] try out [faceprints](https://github.com/Nexuist/faceprints)
 - [ ] try out [seeV](https://github.com/nexuist/seev)
 - [ ] try out [Czkawka](https://github.com/qarmin/czkawka)
+- [ ] try out [iCloud Photos Downloader](https://github.com/icloud-photos-downloader/icloud_photos_downloader)
